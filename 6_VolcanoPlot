@@ -1,0 +1,47 @@
+## Script used for sorting DEGs in overexpressed and repressed genes and plotting volcano plots
+
+# Substitute "exp_cond" for a specific experimental condition
+
+# Read DEGs comparisson
+setwd("D:/Entrega_GEN271_23")
+results <- read.delim("results/final_exp_cond.tsv", sep = "\t")
+results$log10padjust <- -log10(results$padjust)
+
+# Built overexpressed DEGs table
+overexp <- results[results$log2Ratio > 2 & results$padjust < 0.05,]
+overexp_sorted <- overexp[overexp$log10padjust > 100,]
+
+nrow(overexp)
+nrow(overexp_sorted)
+
+repr <- results[results$log2Ratio < -2 & results$padjust < 0.05,]
+repr_sorted <- repr[repr$log10padjust > 100,]
+
+nrow(repr)
+nrow(repr_sorted)
+
+# Save DEGs lists
+#write.table(overexp, file = "results/exp_cond_UP_DEGs.tsv", sep = "\t", row.names = F)
+#write.table(repr, file = "results/exp_cond_DOWN_DEGs.tsv", sep = "\t", row.names = F)
+
+# Volcano plot
+
+# If n <<
+plot(results$log2Ratio, results$log10padjust, pch = 19, col = "grey", cex = 0.8,
+     xlim = c(-8,8), ylim = c(0,60),
+     xlab = "log2(Fold-Change)", ylab = "-log10(p-value adjust", cex.lab = 1.5)
+title("exp_cond DEGs")
+points(x = overexp_sorted$log2Ratio, y = overexp_sorted$log10padjust,
+       col = "red", cex = 0.8, pch = 19)
+points(x = repr_sorted$log2Ratio, y = repr_sorted$log10padjust,
+       col = "blue", cex = 0.8, pch = 19)
+
+# If n >>
+plot(results$log2Ratio, results$log10padjust, pch = 19, col = "grey", cex = 0.8,
+     xlim = c(-15,15), ylim = c(0,350),
+     xlab = "log2(Fold-Change)", ylab = "-log10(p-value adjust", cex.lab = 1.5)
+title("exp_cond DEGs")
+points(x = overexp_sorted$log2Ratio, y = overexp_sorted$log10padjust,
+       col = "red", cex = 0.8, pch = 19)
+points(x = repr_sorted$log2Ratio, y = repr_sorted$log10padjust,
+       col = "blue", cex = 0.8, pch = 19)
