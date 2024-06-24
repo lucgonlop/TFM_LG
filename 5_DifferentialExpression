@@ -1,0 +1,75 @@
+## This scrtipt was used for Differential Expression Analysis and obtaining DEGs
+
+# Reading needed packages
+library(BiocManager)
+library(DESeq2)
+library(edgeR) 
+library(gplots)
+
+# An array is generated with bam files names without specifying replicate numbers. Replicates are automatically recognised
+samples <- data.frame(conditions=c("CA1-IR", "CA1-IR", "CA1-NI", "CA1-NI", "DCIS-IR", "DCIS-IR",
+                                       "DCIS-NI", "DCIS-NI", "MCF10A-IR", "MCF10A-IR", "MCF10A-NI", "MCF10A-NI",
+                                       "MCF10AT-IR", "MCF10AT-IR", "MCF10AT-NI", "MCF10AT-NI"))
+
+# A variable called "dds" is combining quantification data and replicates distribution
+dds <- DESeqDataSetFromMatrix(countdata.no.flat,colData = samples, design=~conditions)
+dds
+
+# DESeq() is used to normalyze and calculate dispersion from gene expression
+dds <- DESeq(dds)
+dds
+# results() is used to extract a result table from DESeq data
+res <- results(dds)
+res
+
+### Comparissons between +/- IR conditions ###
+#  MCF10A-IR vs. MCF10A-NI (IR condition - control = overexpression / repressed IR condition)
+results_MCF10A_IR.vs.NI <- results(dds,contrast = c("conditions","MCF10A-IR","MCF10A-NI"))
+# Obtained results are modified for fitting its format
+final_MCF10A_IR.vs.NI <- data.frame(GENEID=row.names(results_MCF10A_IR.vs.NI), log2BaseMean=log2(results_MCF10A_IR.vs.NI$baseMean),log2Ratio=results_MCF10A_IR.vs.NI$log2FoldChange,STDERR_log2Ratio=results_MCF10A_IR.vs.NI$lfcSE, pvalue=results_MCF10A_IR.vs.NI$pvalue, padjust=results_MCF10A_IR.vs.NI$padj)
+head(final_MCF10A_IR.vs.NI)
+# Data is saved in "results/" directory
+write.table (final_MCF10A_IR.vs.NI, file="results/final_MCF10A_IR.vs.NI.tsv", sep = "\t", row.names = FALSE)
+
+#  MCF10AT-IR vs. MCF10AT-NI
+results_MCF10AT_IR.vs.NI <- results(dds,contrast = c("conditions","MCF10AT-IR","MCF10AT-NI"))
+final_MCF10AT_IR.vs.NI <- data.frame(GENEID=row.names(results_MCF10AT_IR.vs.NI), log2BaseMean=log2(results_MCF10AT_IR.vs.NI$baseMean),log2Ratio=results_MCF10AT_IR.vs.NI$log2FoldChange,STDERR_log2Ratio=results_MCF10AT_IR.vs.NI$lfcSE, pvalue=results_MCF10AT_IR.vs.NI$pvalue, padjust=results_MCF10AT_IR.vs.NI$padj)
+head(final_MCF10AT_IR.vs.NI)
+write.table (final_MCF10AT_IR.vs.NI, file="results/final_MCF10AT_IR.vs.NI.tsv", sep = "\t", row.names = FALSE)
+
+#  MCFDCIS-IR vs. MCFDCIS-NI
+results_DCIS_IR.vs.NI <- results(dds,contrast = c("conditions","DCIS-IR","DCIS-NI"))
+final_DCIS_IR.vs.NI <- data.frame(GENEID=row.names(results_DCIS_IR.vs.NI), log2BaseMean=log2(results_DCIS_IR.vs.NI$baseMean),log2Ratio=results_DCIS_IR.vs.NI$log2FoldChange,STDERR_log2Ratio=results_DCIS_IR.vs.NI$lfcSE, pvalue=results_DCIS_IR.vs.NI$pvalue, padjust=results_DCIS_IR.vs.NI$padj)
+head(final_DCIS_IR.vs.NI)
+write.table (final_DCIS_IR.vs.NI, file="results/final_DCIS_IR.vs.NI.tsv", sep = "\t", row.names = FALSE)
+
+#  MCFCA1-IR vs. MCFCA1-NI
+results_CA1_IR.vs.NI <- results(dds,contrast = c("conditions","CA1-IR","CA1-NI"))
+final_CA1_IR.vs.NI <- data.frame(GENEID=row.names(results_CA1_IR.vs.NI), log2BaseMean=log2(results_CA1_IR.vs.NI$baseMean),log2Ratio=results_CA1_IR.vs.NI$log2FoldChange,STDERR_log2Ratio=results_CA1_IR.vs.NI$lfcSE, pvalue=results_CA1_IR.vs.NI$pvalue, padjust=results_CA1_IR.vs.NI$padj)
+head(final_CA1_IR.vs.NI)
+write.table (final_CA1_IR.vs.NI, file="results/final_CA1_IR.vs.NI.tsv", sep = "\t", row.names = FALSE)
+
+### Comparissons between cell lines ###
+#  MCF10AT-NI vs. MCF10A-NI
+results_MCF10AT.vs.MCF10A <- results(dds,contrast = c("conditions","MCF10AT-NI","MCF10A-NI"))
+final_MCF10AT_IR.vs.MCF10A <- data.frame(GENEID=row.names(results_MCF10AT.vs.MCF10A), log2BaseMean=log2(results_MCF10AT.vs.MCF10A$baseMean),log2Ratio=results_MCF10AT.vs.MCF10A$log2FoldChange,STDERR_log2Ratio=results_MCF10AT.vs.MCF10A$lfcSE, pvalue=results_MCF10AT.vs.MCF10A$pvalue, padjust=results_MCF10AT.vs.MCF10A$padj)
+head(final_MCF10AT_IR.vs.MCF10A)
+write.table (final_MCF10AT_IR.vs.MCF10A, file="results/final_MCF10AT_IR.vs.MCF10A.tsv", sep = "\t", row.names = FALSE)
+
+#  MCFDCIS-NI vs. MCF10AT-NI
+results_DCIS.vs.MCF10AT <- results(dds,contrast = c("conditions","DCIS-NI","MCF10AT-NI"))
+final_DCIS.vs.MCF10AT <- data.frame(GENEID=row.names(results_DCIS.vs.MCF10AT), log2BaseMean=log2(results_DCIS.vs.MCF10AT$baseMean),log2Ratio=results_DCIS.vs.MCF10AT$log2FoldChange,STDERR_log2Ratio=results_DCIS.vs.MCF10AT$lfcSE, pvalue=results_DCIS.vs.MCF10AT$pvalue, padjust=results_DCIS.vs.MCF10AT$padj)
+head(final_DCIS.vs.MCF10AT)
+write.table (final_DCIS.vs.MCF10AT, file="results/final_DCIS.vs.MCF10AT.tsv", sep = "\t", row.names = FALSE)
+
+# MCFCA1-NI vs. MCF10AT-NI
+results_CA1.vs.MCF10AT <- results(dds,contrast = c("conditions","CA1-NI","MCF10AT-NI"))
+final_CA1.vs.MCF10AT <- data.frame(GENEID=row.names(results_CA1.vs.MCF10AT), log2BaseMean=log2(results_CA1.vs.MCF10AT$baseMean),log2Ratio=results_CA1.vs.MCF10AT$log2FoldChange,STDERR_log2Ratio=results_CA1.vs.MCF10AT$lfcSE, pvalue=results_CA1.vs.MCF10AT$pvalue, padjust=results_CA1.vs.MCF10AT$padj)
+head(final_CA1.vs.MCF10AT)
+write.table (final_CA1.vs.MCF10AT, file="results/final_CA1.vs.MCF10AT.tsv", sep = "\t", row.names = FALSE)
+
+#  MCFCA1-NI vs. MCFDCIS-NI
+results_CA1.vs.DCIS <- results(dds,contrast = c("conditions","CA1-NI","DCIS-NI"))
+final_CA1.vs.DCIS <- data.frame(GENEID=row.names(results_CA1.vs.DCIS), log2BaseMean=log2(results_CA1.vs.DCIS$baseMean),log2Ratio=results_CA1.vs.DCIS$log2FoldChange,STDERR_log2Ratio=results_CA1.vs.DCIS$lfcSE, pvalue=results_CA1.vs.DCIS$pvalue, padjust=results_CA1.vs.DCIS$padj)
+head(final_CA1.vs.DCIS)
+write.table (final_CA1.vs.DCIS, file="results/final_CA1.vs.DCIS.tsv", sep = "\t", row.names = FALSE)
