@@ -43,18 +43,22 @@ sampleinfo$Replicate <- as.factor(sampleinfo$Replicate)
 sample.color <- c(brewer.pal(n = length(levels(sampleinfo$Condition)), name = "Set1"))[sampleinfo$Condition] #Asociar un color a cada condición
 sample.symbol <- c(16,17)[sampleinfo$Replicate] #Asociar un tipo de punto a cada réplica. En mi caso tenía 2 réplicas, por eso pongo 2 tipos de puntos.
 
+num_colors <- length(levels(sampleinfo$Condition))
+palette_colors <- brewer.pal(n = num_colors, name = "Paired")
+sample_color <- palette_colors[sampleinfo$Condition]
+
 # Following code lines must be run simultaneously to obtain PCA plot:
 plotMDS(logcpm, col=sample.color, pch=sample.symbol, cex=2, cex.axis=2, cex.lab=2)
-#par(mar = c(5,5,5,5)) # pone las dimensiones del gr?fico m?s peque?as y deja margen, de ah? lo de mar.
-legend(3.0,4.15, xpd = T, fill=c("darkorange3","orange","cadetblue4","cadetblue1", "indianred4","indianred1","darkolivegreen4","darkolivegreen1"),legend=levels(sampleinfo$Condition),cex=1,)
-legend(4.0, 0.15, xpd = T, pch=c(16,17),legend=levels(sampleinfo$Replicate),cex=1)
+title("PCA")
+legend(3.0,6.15, xpd = T, fill= palette_colors,legend=levels(sampleinfo$Condition),cex=1,)
+legend(4.0, 1.15, xpd = T, pch=c(16,17),legend=levels(sampleinfo$Replicate),cex=1)
 
 # Following code lines must be run simultaneously to save PCA plot:
 pdf("results/pca_all_samples.pdf", width = 15, height = 15, ) #To save plot in pdf format
 plotMDS(logcpm, col=sample.color, pch=sample.symbol, cex=2, cex.axis=2, cex.lab=2)
-#par(mar = c(15,15,15,15)) # pone las dimensiones del gr?fico m?s peque?as y deja margen, de ah? lo de mar.
-legend(3.0,4.15, xpd = T, fill=c("darkorange3","orange","cadetblue4","cadetblue1", "indianred4","indianred1","darkolivegreen4","darkolivegreen1"),legend=levels(sampleinfo$Condition),cex=1,)
-legend(4.0, 0.15, xpd = T, pch=c(16,17),legend=levels(sampleinfo$Replicate),cex=1)
+title("PCA")
+legend(3.0,6.15, xpd = T, fill= palette_colors,legend=levels(sampleinfo$Condition),cex=1,)
+legend(4.0, 1.15, xpd = T, pch=c(16,17),legend=levels(sampleinfo$Replicate),cex=1)
 dev.off()
 
 # To extract and save PCA values (X and Y):
