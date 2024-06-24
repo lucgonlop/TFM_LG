@@ -1,4 +1,4 @@
-## This script has been used for counting reads and PCA analysis
+## This script has been used for counting reads
 
 setwd("D:/Entrega_GEN271_23") # To set working directory
 
