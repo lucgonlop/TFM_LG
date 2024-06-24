@@ -1,1 +1,35 @@
+## This script has been used for counting reads and PCA analysis
 
+setwd("D:/Entrega_GEN271_23") # To set working directory
+
+# Reading needed packages
+library(rtracklayer)
+library(edgeR)
+library(Rsubread)
+library(AnnotationDbi)
+library(stats4)
+library(ggplot2)
+library(RColorBrewer)
+
+# Reading needed data
+diag.stats <- read.csv("bam/mapped_statistics.csv", header = T)
+lib.sizes <- as.vector(diag.stats[,2]) # To get mapped reads
+
+# Extracting bam files name list
+fastq.files.R1 <- list.files(path = "fastq/", pattern = "R1") 
+filenames <- gsub(pattern = "_R1.fastq.gz",replacement = ".bam", fastq.files.R1)
+
+# Changing working directory to "bam/" directory
+setwd("D:/Entrega_GEN271_23/bam")
+fc <- featureCounts(files = filenames,
+                    annot.ext = "../genomes/hg38/gtf/hg38.ncbiRefSeq.gtf.gz",
+                    isGTFAnnotationFile=TRUE,
+                    GTF.featureType="exon",
+                    GTF.attrType="gene_id",
+                    isPairedEnd = TRUE,
+                    strandSpecific = 2,
+                    nthreads = 22)
+
+# Changing working directory to our main directory again
+setwd("D:/Entrega_GEN271_23")
+write.table(fc$counts, file = "results/raw_counts.tsv", sep = "\t") # Saving results from read count
