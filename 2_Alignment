@@ -1,0 +1,55 @@
+# Needed packages are read
+library(Rsubread)
+library(Rsamtools)
+
+setwd("D:/Entrega_GEN271_23") # To choose my working directory
+getwd() # To get file names from my workng directory
+
+fastq.files.R1 <- list.files(path = "fastq/", pattern = "R1") # To get all "R1" files from "fastq/" directory
+fastq.files.R2 <- list.files(path = "fastq/", pattern = "R2") # To get all "R2" files from "fastq/" directory
+bam.files <- gsub(pattern = "_R1.fastq.gz",replacement = ".bam", fastq.files.R1) # Sufix "fast.gz" is replaced for ".bam"
+
+fastq.files.R1 <- paste0("fastq/",fastq.files.R1)
+fastq.files.R2 <- paste0("fastq/",fastq.files.R2)
+bam.files <- paste0("bam/", bam.files)
+
+## Index reference genome (it lasts 1h)
+buildindex(basename="/Entrega_GEN271_23/genomes/hg38/hg38_index_Rsubread/hg38_index_Rsubread", reference="/Entrega_GEN271_23/genomes/hg38/fasta/hg38.fa")
+
+## Alignment (it lasts 10 min/sample)
+align(index="/Entrega_GEN271_23/genomes/hg38/hg38_index_Rsubread/hg38_index_Rsubread", #El genoma de referencia indexado
+      readfile1= fastq.files.R1, #List of fastq.gz (paired-end)
+      readfile2= fastq.files.R2, #List of fastq.gz (paired-end)
+      TH1=2, # Threshold
+      type=0, # RNA alignment; "1" for DNA (ej: ChIP-seq)
+      input_format="gzFASTQ",
+      output_format="BAM",
+      output_file=bam.files, # List of names for output bam files
+      unique = TRUE, # Only unique mapping reads are chosen
+      nthreads = 20,
+      PE_orientation = "fr") # First read orientation
+
+## Sort of bam files
+for (bam in bam.files) {
+  out <- suppressWarnings(sortBam(bam, "temporal"))
+  file.rename(out, bam)
+}
+
+## Alignment statistics
+diagnostics <- list()
+for (bam in bam.files) {
+  total <- countBam(bam)$records
+  mapped <- countBam(bam, param=ScanBamParam(
+    flag=scanBamFlag(isUnmapped=FALSE)))$records
+  marked <- countBam(bam, param=ScanBamParam(
+    flag=scanBamFlag(isUnmapped=FALSE, isDuplicate=TRUE)))$records
+  diagnostics[[bam]] <- c(Total=total, Mapped=mapped, Marked=marked)
+}
+diag.stats <- data.frame(do.call(rbind, diagnostics)) 
+diag.stats$Prop.mapped <- diag.stats$Mapped/diag.stats$Total*100
+diag.stats$Prop.marked <- diag.stats$Marked/diag.stats$Mapped*100
+diag.stats
+write.csv(diag.stats, "mapped_statistics.csv")
+
+## Index sorted bam files
+indexBam(bam.files)
