@@ -1,4 +1,4 @@
-# Script in bash for previous treatment of raw data.
+# This script is used in bash for previous treatment of raw data.
 # Samples are provided in two (2) lanes so, fisrt of all, it is needed to concatenate lanes in one file. Then, raw data
 # is removed in order to release storage.
 
