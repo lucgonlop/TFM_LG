@@ -7,41 +7,48 @@ setwd("D:/Entrega_GEN271_23")
 results <- read.delim("results/final_exp_cond.tsv", sep = "\t")
 results$log10padjust <- -log10(results$padjust)
 
-# Built overexpressed DEGs table
-overexp <- results[results$log2Ratio > 2 & results$padjust < 0.05,]
-overexp_sorted <- overexp[overexp$log10padjust > 100,]
+# Built upregulated DEGs table
+upreg <- results[results$log2Ratio > 1 & results$padjust < 0.01,]
+nrow(upreg)
 
-nrow(overexp)
-nrow(overexp_sorted)
+upreg4x <- results[results$log2Ratio > 2 & results$padjust < 0.01,]
+nrow(upreg4x)
 
-repr <- results[results$log2Ratio < -2 & results$padjust < 0.05,]
-repr_sorted <- repr[repr$log10padjust > 100,]
+downreg <- results[results$log2Ratio < -1 & results$padjust < 0.01,]
+nrow(downreg)
 
-nrow(repr)
-nrow(repr_sorted)
+downreg4x <- results[results$log2Ratio < -2 & results$padjust < 0.01,]
+nrow(downreg4x)
 
 # Save DEGs lists
-#write.table(overexp, file = "results/exp_cond_UP_DEGs.tsv", sep = "\t", row.names = F)
-#write.table(repr, file = "results/exp_cond_DOWN_DEGs.tsv", sep = "\t", row.names = F)
+write.table(upreg, file = "results/lists/exp_cond_UP_DEGs.csv", sep = "\t", row.names = F)
+write.table(downreg, file = "results/lists/exp_cond_DOWN_DEGs.csv", sep = "\t", row.names = F)
+
+write.table(upreg$GENEID, file = "results/lists/exp_cond_UP_DEGs.tsv", col.names = F, row.names = F)
+write.table(downreg$GENEID, file = "results/lists/exp_cond_DOWN_DEGs.tsv", col.names = F, row.names = F)
 
 # Volcano plot
 
 # If n <<
+png("plots/Volcano_exp_cond.png")
 plot(results$log2Ratio, results$log10padjust, pch = 19, col = "grey", cex = 0.8,
-     xlim = c(-8,8), ylim = c(0,60),
-     xlab = "log2(Fold-Change)", ylab = "-log10(p-value adjust", cex.lab = 1.5)
-title("exp_cond DEGs")
-points(x = overexp_sorted$log2Ratio, y = overexp_sorted$log10padjust,
+     xlim = c(-8,8), ylim = c(0,50),
+     xlab = "log2(Fold-Change)", ylab = "-log10(adjusted p-value)", cex.lab = 1.5)
+title("Differential expression in exp_cond")
+points(x = upreg$log2Ratio, y = upreg$log10padjust,
        col = "red", cex = 0.8, pch = 19)
-points(x = repr_sorted$log2Ratio, y = repr_sorted$log10padjust,
+points(x = downreg$log2Ratio, y = downreg$log10padjust,
        col = "blue", cex = 0.8, pch = 19)
+dev.off()
 
 # If n >>
+png("plots/Volcano_MCF10exp_cond.png")
 plot(results$log2Ratio, results$log10padjust, pch = 19, col = "grey", cex = 0.8,
      xlim = c(-15,15), ylim = c(0,350),
-     xlab = "log2(Fold-Change)", ylab = "-log10(p-value adjust", cex.lab = 1.5)
-title("exp_cond DEGs")
-points(x = overexp_sorted$log2Ratio, y = overexp_sorted$log10padjust,
+     xlab = "log2(Fold-Change)", ylab = "-log10(adjusted p-value)", cex.lab = 1.5)
+title("Differential expression in exp_cond")
+points(x = upreg$log2Ratio, y = upreg$log10padjust,
        col = "red", cex = 0.8, pch = 19)
-points(x = repr_sorted$log2Ratio, y = repr_sorted$log10padjust,
+points(x = downreg$log2Ratio, y = downreg$log10padjust,
        col = "blue", cex = 0.8, pch = 19)
+dev.off()
