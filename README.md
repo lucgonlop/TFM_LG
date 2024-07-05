@@ -1,2 +1,3 @@
 # TFM_LG
-Private repository where I provide the code used in my TFM for RNA-seq analysis.
+
+This repository provides the line codes used in my TFM project named "The RNA editing damage response as a driving frorce of tumour adaptation". Differential gene expression, RNA modification and functional enrichment analysis were computed to determine transcriptome alterations on RNA-sequencing data.
